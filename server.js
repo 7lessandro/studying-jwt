@@ -3,26 +3,39 @@ const app = express();
 const PORT = 3000;
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const auth = require('./middleware/auth')
+
+const JWTSecret = require('./token/JWTSecret')
 
 const DB = require('./database/db')
+const jwt = require('jsonwebtoken');
 
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
-app.use(cors())
 
-//Autenticação login/web json token
+//Login with jwt
 app.post('/auth', (req, res) => {
     var {email, password} = req.body;
 
     if(email != undefined) {
 
-        var user = DB.users.find(user => user.email === email)
+        var user = DB.users.find(user => user.email == email)
 
         if(user != undefined) {
 
             if(user.password == password) {
-                res.status(200);
-                res.json({token: "token falso"})
+
+                //payload token information
+                jwt.sign({id: user.id, email: user.email}, JWTSecret, {expiresIn: '48h'}, (error, token) => {
+                    if (error) {
+                        res.status(400);
+                        res.json({error: 'Senha ou E-mail Incorreto'})
+                    } else {
+                        res.status(200);
+                        res.json({token:token})
+                    }
+                }) 
             } else {
                 res.status(401);
                 res.json({error: "Senha inválida"})
@@ -47,7 +60,7 @@ app.get('/games', (req, res) => {
 
 })
 
-app.get('/game/:id', (req, res) => {
+app.get('/game/:id',auth, (req, res) => {
     if(isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
