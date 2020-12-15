@@ -10,10 +10,11 @@ const JWTSecret = require('./token/JWTSecret')
 const DB = require('./database/db')
 const jwt = require('jsonwebtoken');
 
-
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(cors())
+
+
 
 //Login with jwt
 app.post('/auth', (req, res) => {
@@ -55,13 +56,12 @@ app.post('/auth', (req, res) => {
 })
 
 
-app.get('/games', (req, res) => {
+app.get('/games', auth, (req, res) => {
     res.statusCode = 200
     res.json(DB.games)
-
 })
 
-app.get('/game/:id', (req, res) => {
+app.get('/game/:id', auth, (req, res) => {
     if(isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
@@ -77,7 +77,7 @@ app.get('/game/:id', (req, res) => {
     }
 })
 
-app.post('/game', (req, res) => {
+app.post('/game', auth, (req, res) => {
     var {id, name, year, price} = req.body;
     
     DB.games.push({
@@ -91,7 +91,7 @@ app.post('/game', (req, res) => {
 
 })
 
-app.delete('/game/:id', (req, res) => {
+app.delete('/game/:id', auth, (req, res) => {
     if(isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
@@ -107,7 +107,7 @@ app.delete('/game/:id', (req, res) => {
     }
 })
 
-app.put('/game/:id', (req, res) => {
+app.put('/game/:id', auth, (req, res) => {
     if(isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
@@ -138,5 +138,5 @@ app.put('/game/:id', (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log('Api [OK]')
+    console.log('API running [OK]')
 })
