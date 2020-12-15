@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+</head>
+<body>
+    <div class="container p-4">
+        <nav class="navbar navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Lista de Games</a>
+          </nav>
+          <hr>
+
+          <div class="col text-center">
+            <h5>Cadastro de Games</h5>
+            <br>
+            <input type="number" id="skugame" placeholder="SKU"> 
+            <input type="text" id="gamename" placeholder="Nome"> 
+            <input type="number" id="gameprice" placeholder="Preço">
+            <br>
+            <input id="button" class="mt-4 mb-4 btn btn-success" type="submit" value="Cadastrar">
+            <button class="btn btn-primary" onclick="location.reload()">Atualizar</button>
+
+          </div>
+<hr>
+          <div class="col">
+            <table class="table table-dark text-center">
+                <tbody>
+                    <tr id="name">
+                    </tr>
+                </tbody>
+              </table>
+          </div>
+        </div>
+    </div>
+
+<hr>
+
+        <div class="col text-center">
+            <h5>Editar Game</h5>
+            <br>
+            <input type="text" hidden id="skugameEdit" placeholder="SKU"> 
+            <input type="text" id="gamenameEdit" placeholder="Nome"> 
+            <input type="text" id="gamepriceEdit" placeholder="Preço">
+            <br>
+            <input id="editar" class="mt-4 mb-4 btn btn-success" type="submit" value="Editar">
+
+        </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+
+
+
+        //Rota de Cadastro(POST)
+        function createGame() {
+            var idInput = document.getElementById('skugame')
+            var nameInput = document.getElementById('gamename')
+            var priceInput = document.getElementById('gameprice')
+
+            var id = parseInt(idInput.value)
+
+            var game = {
+                id: id,
+                name: nameInput.value,
+                price: priceInput.value
+            }
+
+            axios.post('http://localhost:3000/game', game).then(response => {
+
+                if(response.status === 200) {
+                    alert('game criado com sucesso')
+                }
+
+            }).catch(error => {
+                alert("Deu erro")
+            })
+        }
+
+        //Rota e Função para deletar item
+        function deleteGame(item) {
+            var id = item.getAttribute('data-id')
+            var name = item.getAttribute('data-name')
+            axios.delete('http://localhost:3000/game/'+id).then(response => {
+                    alert(`${name} deletado com sucesso. Atualize a página.`)
+                }).catch(error => {
+                    alert('Erro ao deletar')
+                })
+            } 
+
+        //Rota e Função para carregar e editar itens
+        function loadForm(item) {
+            var id = item.getAttribute('data-id')
+            var name = item.getAttribute('data-name')
+            var price = item.getAttribute('data-price')
+
+            var inputId = document.getElementById('skugameEdit')
+            var inputName = document.getElementById('gamenameEdit')
+            var inputPrice = document.getElementById('gamepriceEdit')
+
+            inputId.value = id
+            inputName.value = name
+            inputPrice.value = price
+
+        }
+
+        function editGame() {
+            var inputId = document.getElementById('skugameEdit')
+            var inputName = document.getElementById('gamenameEdit')
+            var inputPrice = document.getElementById('gamepriceEdit')
+
+            var id = inputId.value
+            var name = inputName.value
+            var price = inputPrice.value
+
+            var game = {
+                id: id,
+                name: name,
+                price: price
+            }
+            console.log(id)
+
+            axios.put('http://localhost:3000/game/'+id,game).then(response => {
+                alert(`${name} atualizado com sucesso`)
+            }).catch(error => {
+                alert(`deu erro no ${name}`)
+            })
+
+            console.log(game)
+        }
+
+        //Rota de Listagem(GET)
+        axios.get('http://localhost:3000/games').then(response => {
+            var games = response.data
+            var game_name = document.getElementById('name')
+
+            games.forEach(game => {
+                var item = document.createElement('td')
+
+                item.setAttribute('data-id', game.id)
+                item.setAttribute('data-name', game.name)
+                item.setAttribute('data-year', game.year)
+                item.setAttribute('data-price', game.price)
+
+                item.innerHTML = game.name + ' - R$ '+ game.price
+
+                game_name.appendChild(item)
+
+                var deleteBtn = document.createElement('button')
+                deleteBtn.className = 'btn btn-danger ml-2'
+                deleteBtn.innerHTML = 'Apagar'
+
+                var editBtn = document.createElement('button')
+                editBtn.className = 'btn btn-warning ml-2'
+                editBtn.innerHTML = 'Editar'
+
+                deleteBtn.addEventListener('click',() => {
+                    deleteGame(item)
+                })
+
+                editBtn.addEventListener('click', () => {
+                    loadForm(item)
+                })
+
+                item.appendChild(deleteBtn)
+                item.appendChild(editBtn)
+
+
+            })
+        }).catch(error => console.log(error))
+
+        //Adicionar funções nos botões
+        document.getElementById('button').addEventListener('click', createGame)
+        document.getElementById('editar').addEventListener('click', editGame)
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

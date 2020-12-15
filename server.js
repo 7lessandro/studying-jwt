@@ -10,9 +10,10 @@ const JWTSecret = require('./token/JWTSecret')
 const DB = require('./database/db')
 const jwt = require('jsonwebtoken');
 
-app.use(cors())
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+app.use(cors())
 
 //Login with jwt
 app.post('/auth', (req, res) => {
@@ -60,7 +61,7 @@ app.get('/games', (req, res) => {
 
 })
 
-app.get('/game/:id',auth, (req, res) => {
+app.get('/game/:id', (req, res) => {
     if(isNaN(req.params.id)) {
         res.sendStatus(400)
     } else {
@@ -68,7 +69,7 @@ app.get('/game/:id',auth, (req, res) => {
         var game = DB.games.find(g => g.id === id)
 
         if(game != undefined) {
-            res.statusCode = 200
+            res.statusCode = 200;
             res.json(game)
         } else {
             res.sendStatus(404)
@@ -114,7 +115,7 @@ app.put('/game/:id', (req, res) => {
         var game = DB.games.find(g => g.id === id)
 
         if(game != undefined) {
-            var {name, year, price} = req.body;
+            var {id, name, year, price} = req.body;
 
             if(name != undefined) {
                 game.name = name
