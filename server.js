@@ -29,7 +29,7 @@ app.post('/auth', (req, res) => {
             if(user.password == password) {
 
                 //payload token information
-                jwt.sign({id: user.id, email: user.email}, JWTSecret, {expiresIn: '48h'}, (error, token) => {
+                jwt.sign({id: user.id, email: user.email}, JWTSecret, {expiresIn: '24h'}, (error, token) => {
                     if (error) {
                         res.status(400);
                         res.json({error: 'Senha ou E-mail Incorreto'})
